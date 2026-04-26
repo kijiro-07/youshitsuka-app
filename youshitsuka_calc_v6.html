@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洋室化計算ツール v6</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #f8fafc, #e0f2fe);
+  min-height: 100vh;
+  padding: 16px;
+  color: #1f2937;
+}
+
+.app {
+  max-width: 460px;
+  margin: 0 auto 40px;
+}
+
+.header {
+  margin: 14px 0 16px;
+}
+
+.header h1 {
+  font-size: 25px;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.header p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
+  padding: 17px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.11);
+  margin-bottom: 15px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 12px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+input, select, textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: #f1f5f9;
+  border-radius: 14px;
+  padding: 13px;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+textarea {
+  min-height: 82px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.full { grid-column: span 2; }
+
+button {
+  width: 100%;
+  border: none;
+  background: #0284c7;
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: 18px;
+  padding: 15px;
+  margin-top: 14px;
+  box-shadow: 0 8px 18px rgba(2, 132, 199, 0.32);
+}
+
+button:active { transform: scale(0.98); }
+
+button.secondary {
+  background: #475569;
+  box-shadow: 0 8px 18px rgba(71, 85, 105, 0.25);
+}
+
+button.danger {
+  background: #dc2626;
+  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.22);
+}
+
+.result-main {
+  font-size: 31px;
+  font-weight: 900;
+  color: #0369a1;
+  margin: 4px 0;
+}
+
+.result-sub {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.65;
+}
+
+.badge {
+  display: inline-block;
+  background: #e0f2fe;
+  color: #075985;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 800;
+  margin: 3px 4px 3px 0;
+}
+
+.best {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.warn {
+  background: #fefce8;
+  color: #854d0e;
+}
+
+.note {
+  background: #fefce8;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 12px;
+  color: #854d0e;
+  line-height: 1.5;
+  margin-top: 12px;
+}
+
+.room-wrap {
+  width: 100%;
+  overflow-x: auto;
+  padding: 4px 0 8px;
+  background: #f8fafc;
+  border-radius: 18px;
+}
+
+.room {
+  position: relative;
+  background:
+    linear-gradient(90deg, rgba(148,163,184,.18) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(148,163,184,.18) 1px, transparent 1px),
+    #ffffff;
+  background-size: 24px 24px;
+  border: 3px solid #334155;
+  border-radius: 12px;
+  margin: 8px auto 2px;
+  overflow: hidden;
+}
+
+.board {
+  position: absolute;
+  border: 1.5px solid rgba(51, 65, 85, 0.65);
+  background: linear-gradient(135deg, #fde68a, #fbbf24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #78350f;
+  font-weight: 900;
+  overflow: hidden;
+  border-radius: 3px;
+}
+
+.board.cut {
+  background: linear-gradient(135deg, #fecaca, #f87171);
+  color: #7f1d1d;
+}
+
+.board .group-label {
+  position: absolute;
+  right: 2px;
+  bottom: 1px;
+  background: rgba(255,255,255,.85);
+  border-radius: 999px;
+  padding: 1px 4px;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.joist {
+  position: absolute;
+  background: rgba(14, 165, 233, 0.35);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.legend {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.normal { background: #fbbf24; }
+.cutdot { background: #f87171; }
+.joistdot { background: rgba(14, 165, 233, 0.45); }
+
+.small {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+.hidden { display: none; }
+
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 50;
+}
+
+.modal {
+  width: 100%;
+  max-width: 390px;
+  background: white;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.25);
+}
+
+.modal h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+}
+
+.saved-item {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.saved-item strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.two-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.summary-box {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.summary-box small {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.summary-box b {
+  display: block;
+  margin-top: 4px;
+  font-size: 17px;
+}
+
+.cut-list {
+  margin-top: 12px;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.cut-list b {
+  color: #1f2937;
+}
+
+.cut-pill {
+  display: inline-block;
+  background: #fee2e2;
+  color: #7f1d1d;
+  border-radius: 999px;
+  padding: 4px 8px;
+  margin: 3px 3px 0 0;
+  font-weight: 800;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1>洋室化計算ツール v6</h1>
+    <p>合板枚数・材料費・下地方向・おすすめ配置・カット寸法の確認までできる試作版です。</p>
+  </div>
+
+  <div class="card">
+    <p class="section-title">基本入力</p>
+
+    <div class="form-grid">
+      <div>
+        <label>部屋の縦 mm</label>
+        <input id="roomH" type="number" value="3640">
+      </div>
+
+      <div>
+        <label>部屋の横 mm</label>
+        <input id="roomW" type="number" value="2730">
+      </div>
+
+      <div>
+        <label>合板 短辺 mm</label>
+        <input id="boardW" type="number" value="910">
+      </div>
+
+      <div>
+        <label>合板 長辺 mm</label>
+        <input id="boardH" type="number" value="1820">
+      </div>
+
+      <div>
+        <label>合板単価 円</label>
+        <input id="price" type="number" value="1800">
+      </div>
+
+      <div>
+        <label>予備</label>
+        <select id="reserveType">
+          <option value="none">なし</option>
+          <option value="one">+1枚</option>
+          <option value="percent">+10%</option>
+        </select>
+      </div>
+
+      <div class="full">
+        <label>端材再利用</label>
+        <select id="reuseCuts">
+          <option value="on">考慮する</option>
+          <option value="off">考慮しない</option>
+        </select>
+      </div>
+
+      <div>
+        <label>張り方</label>
+        <select id="pattern">
+          <option value="straight">イモ張り</option>
+          <option value="stagger">千鳥張り</option>
+        </select>
+      </div>
+
+      <div>
+        <label>敷き方向</label>
+        <select id="direction">
+          <option value="vertical">縦方向</option>
+          <option value="horizontal">横方向</option>
+          <option value="auto">おすすめ</option>
+        </select>
+      </div>
+
+      <div class="full">
+        <label>根太・下地方向</label>
+        <select id="joistDirection">
+          <option value="horizontal">横方向に根太が走っている</option>
+          <option value="vertical">縦方向に根太が走っている</option>
+          <option value="none">考慮しない</option>
+        </select>
+      </div>
+
+      <div>
+        <label>根太ピッチ mm</label>
+        <input id="joistPitch" type="number" value="303">
+      </div>
+
+      <div>
+        <label>メモ名</label>
+        <input id="memoTitle" type="text" value="6畳 洋室化">
+      </div>
+
+      <div class="full">
+        <label>メモ</label>
+        <textarea id="memoText" placeholder="例：現場名、床の状態、買う材料など"></textarea>
+      </div>
+    </div>
+
+    <button onclick="calculate()">計算する</button>
+    <button class="secondary" onclick="saveMemo()">結果を保存する</button>
+
+    <div class="note">
+      ※根太・下地は「合板の長辺を根太と直交させる方がよさそう」という簡易判定です。実施工では下地位置、ビスピッチ、既存床の状態に合わせて調整してください。
+    </div>
+  </div>
+
+  <div id="resultCard" class="card hidden">
+    <p class="section-title">計算結果</p>
+
+    <div class="summary-grid">
+      <div class="summary-box">
+        <small>必要枚数</small>
+        <b><span id="boardCount">0</span> 枚</b>
+      </div>
+      <div class="summary-box">
+        <small>予備込み</small>
+        <b><span id="totalCount">0</span> 枚</b>
+      </div>
+      <div class="summary-box">
+        <small>材料費</small>
+        <b><span id="totalPrice">0</span> 円</b>
+      </div>
+      <div class="summary-box">
+        <small>おすすめ</small>
+        <b id="bestShort">-</b>
+      </div>
+      <div class="summary-box">
+        <small>面積</small>
+        <b><span id="areaM2">0</span>㎡</b>
+      </div>
+      <div class="summary-box">
+        <small>畳数目安</small>
+        <b><span id="tatamiCount">0</span>畳</b>
+      </div>
+    </div>
+
+    <div class="result-sub" id="resultText" style="margin-top:12px;"></div>
+    <div id="cutAnalysis" class="cut-list"></div>
+  </div>
+
+  <div id="layoutCard" class="card hidden">
+    <p class="section-title">敷き方イメージ</p>
+    <div id="layoutBadges"></div>
+
+    <div class="room-wrap">
+      <div id="room" class="room"></div>
+    </div>
+
+    <div class="legend">
+      <span><i class="dot normal"></i>通常サイズ</span>
+      <span><i class="dot cutdot"></i>カット必要</span>
+      <span><i class="dot joistdot"></i>根太・下地</span>
+    </div>
+
+    <div class="small">
+      カット部分をタップすると、おおよその使用サイズが出ます。数字は合板番号です。
+    </div>
+  </div>
+
+  <div id="savedCard" class="card hidden">
+    <p class="section-title">保存メモ</p>
+    <div id="savedList"></div>
+    <button class="danger" onclick="clearSaved()">保存メモを全部消す</button>
+  </div>
+</div>
+
+<div id="modalBg" class="modal-bg" onclick="closeModal(event)">
+  <div class="modal">
+    <h2 id="modalTitle">合板情報</h2>
+    <div id="modalText" class="result-sub"></div>
+    <button onclick="hideModal()">閉じる</button>
+  </div>
+</div>
+
+<script>
+let lastResult = null;
+
+function yen(n) {
+  return Math.round(n).toLocaleString("ja-JP");
+}
+
+function getBoardSize(direction, baseBoardW, baseBoardH) {
+  if (direction === "vertical") {
+    return { boardW: baseBoardW, boardH: baseBoardH, label: "縦方向" };
+  }
+  return { boardW: baseBoardH, boardH: baseBoardW, label: "横方向" };
+}
+
+function calculateLayout(roomH, roomW, boardW, boardH, pattern, direction) {
+  let count = 0;
+  const boards = [];
+
+  // 横方向に敷く場合：段ごとに横へ半枚ずらす
+  if (pattern === "stagger" && direction === "horizontal") {
+    const rows = Math.ceil(roomH / boardH);
+
+    for (let r = 0; r < rows; r++) {
+      const y = r * boardH;
+      const actualH = Math.min(boardH, roomH - y);
+      const offsetX = r % 2 === 1 ? -boardW / 2 : 0;
+
+      let c = 0;
+      let x = offsetX;
+
+      while (x < roomW) {
+        const visibleX = Math.max(0, x);
+        const visibleRight = Math.min(roomW, x + boardW);
+        const actualW = visibleRight - visibleX;
+
+        if (actualW > 0 && actualH > 0) {
+          const isCut = actualW < boardW || actualH < boardH || x < 0 || (x + boardW) > roomW;
+          count++;
+          boards.push({
+            x: visibleX,
+            y: y,
+            w: actualW,
+            h: actualH,
+            fullW: boardW,
+            fullH: boardH,
+            cut: isCut,
+            number: count,
+            row: r + 1
+          });
+        }
+
+        c++;
+        x = offsetX + c * boardW;
+      }
+    }
+
+    return { count, rows, boards };
+  }
+
+  // 縦方向に敷く場合：列ごとに縦へ半枚ずらす
+  if (pattern === "stagger" && direction === "vertical") {
+    const cols = Math.ceil(roomW / boardW);
+
+    for (let c = 0; c < cols; c++) {
+      const x = c * boardW;
+      const actualW = Math.min(boardW, roomW - x);
+      const offsetY = c % 2 === 1 ? -boardH / 2 : 0;
+
+      let r = 0;
+      let y = offsetY;
+
+      while (y < roomH) {
+        const visibleY = Math.max(0, y);
+        const visibleBottom = Math.min(roomH, y + boardH);
+        const actualH = visibleBottom - visibleY;
+
+        if (actualW > 0 && actualH > 0) {
+          const isCut = actualW < boardW || actualH < boardH || y < 0 || (y + boardH) > roomH;
+          count++;
+          boards.push({
+            x: x,
+            y: visibleY,
+            w: actualW,
+            h: actualH,
+            fullW: boardW,
+            fullH: boardH,
+            cut: isCut,
+            number: count,
+            row: r + 1
+          });
+        }
+
+        r++;
+        y = offsetY + r * boardH;
+      }
+    }
+
+    const rows = Math.ceil(roomH / boardH);
+    return { count, rows, boards };
+  }
+
+  // イモ張り：通常の格子配置
+  const rows = Math.ceil(roomH / boardH);
+
+  for (let r = 0; r < rows; r++) {
+    const y = r * boardH;
+    const actualH = Math.min(boardH, roomH - y);
+
+    let c = 0;
+    let x = 0;
+
+    while (x < roomW) {
+      const visibleX = Math.max(0, x);
+      const visibleRight = Math.min(roomW, x + boardW);
+      const actualW = visibleRight - visibleX;
+
+      if (actualW > 0 && actualH > 0) {
+        const isCut = actualW < boardW || actualH < boardH || (x + boardW) > roomW;
+        count++;
+        boards.push({
+          x: visibleX,
+          y: y,
+          w: actualW,
+          h: actualH,
+          fullW: boardW,
+          fullH: boardH,
+          cut: isCut,
+          number: count,
+          row: r + 1
+        });
+      }
+
+      c++;
+      x = c * boardW;
+    }
+  }
+
+  return { count, rows, boards };
+}
+
+function checkJoist(direction, joistDirection) {
+  if (joistDirection === "none") {
+    return { ok: true, text: "下地考慮なし" };
+  }
+
+  // 合板の長辺方向：verticalなら部屋の縦方向、horizontalなら部屋の横方向
+  const boardLongDirection = direction === "vertical" ? "vertical" : "horizontal";
+
+  // 簡易判定：合板の長辺が根太と直交しているとOK
+  const ok = boardLongDirection !== joistDirection;
+
+  return {
+    ok,
+    text: ok ? "下地方向との相性：良さそう" : "下地方向との相性：要注意"
+  };
+}
+
+function addReserve(count, reserveType) {
+  if (reserveType === "one") return count + 1;
+  if (reserveType === "percent") return Math.ceil(count * 1.1);
+  return count;
+}
+
+function canFitOnBoard(piece, boardW, boardH) {
+  return (
+    (piece.w <= boardW && piece.h <= boardH) ||
+    (piece.h <= boardW && piece.w <= boardH)
+  );
+}
+
+function packCutPieces(cutPieces, boardW, boardH) {
+  // 試作ロジック：
+  // カット部材を面積の大きい順に並べ、1枚の定尺合板の面積内に入るかでまとめる。
+  // 910×910が2枚なら、910×1820の1枚に収まるような判定ができます。
+  const pieces = cutPieces
+    .filter(p => canFitOnBoard(p, boardW, boardH))
+    .sort((a, b) => (b.w * b.h) - (a.w * a.h));
+
+  const bins = [];
+
+  pieces.forEach(piece => {
+    const area = piece.w * piece.h;
+    let placed = false;
+
+    for (const bin of bins) {
+      if (bin.usedArea + area <= bin.boardArea) {
+        bin.pieces.push(piece);
+        bin.usedArea += area;
+        placed = true;
+        break;
+      }
+    }
+
+    if (!placed) {
+      bins.push({
+        boardArea: boardW * boardH,
+        usedArea: area,
+        pieces: [piece]
+      });
+    }
+  });
+
+  return bins;
+}
+
+function groupName(index) {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  if (index < letters.length) return letters[index];
+  return "A" + letters[index % letters.length];
+}
+
+function analyzeCutReuse(boards, boardW, boardH, reuseCuts) {
+  const fullBoards = boards.filter(b => !b.cut).length;
+  const cutPieces = boards
+    .filter(b => b.cut)
+    .map(b => ({
+      number: b.number,
+      w: Math.round(b.w),
+      h: Math.round(b.h),
+      area: b.w * b.h
+    }));
+
+  boards.forEach(b => b.group = "");
+
+  if (reuseCuts === "off" || cutPieces.length === 0) {
+    return {
+      rawCount: boards.length,
+      optimizedCount: boards.length,
+      fullBoards,
+      cutBoardCount: cutPieces.length,
+      saved: 0,
+      cutPieces,
+      bins: []
+    };
+  }
+
+  const bins = packCutPieces(cutPieces, boardW, boardH);
+
+  const groupMap = {};
+  bins.forEach((bin, index) => {
+    const name = groupName(index);
+    bin.group = name;
+    bin.pieces.forEach(p => {
+      p.group = name;
+      groupMap[p.number] = name;
+    });
+  });
+
+  boards.forEach(b => {
+    if (groupMap[b.number]) b.group = groupMap[b.number];
+  });
+
+  const optimizedCount = fullBoards + bins.length;
+
+  return {
+    rawCount: boards.length,
+    optimizedCount,
+    fullBoards,
+    cutBoardCount: bins.length,
+    saved: Math.max(0, boards.length - optimizedCount),
+    cutPieces,
+    bins
+  };
+}
+
+function evaluateOption(roomH, roomW, baseBoardW, baseBoardH, pattern, direction, joistDirection, price, reserveType, reuseCuts) {
+  const size = getBoardSize(direction, baseBoardW, baseBoardH);
+  const layout = calculateLayout(roomH, roomW, size.boardW, size.boardH, pattern, direction);
+  const cutReuse = analyzeCutReuse(layout.boards, size.boardW, size.boardH, reuseCuts);
+  const baseCount = cutReuse.optimizedCount;
+  const total = addReserve(baseCount, reserveType);
+  const joist = checkJoist(direction, joistDirection);
+  const cost = total * price;
+
+  // 下地相性が悪い案は、同額なら順位を落とす
+  const score = cost + (joist.ok ? 0 : price * 0.5);
+
+  return {
+    direction,
+    directionLabel: size.label,
+    boardW: size.boardW,
+    boardH: size.boardH,
+    layout,
+    cutReuse,
+    total,
+    cost,
+    joist,
+    score
+  };
+}
+
+function calculate() {
+  const roomH = Number(document.getElementById("roomH").value);
+  const roomW = Number(document.getElementById("roomW").value);
+  const baseBoardW = Number(document.getElementById("boardW").value);
+  const baseBoardH = Number(document.getElementById("boardH").value);
+  const pattern = document.getElementById("pattern").value;
+  const directionInput = document.getElementById("direction").value;
+  const price = Number(document.getElementById("price").value || 0);
+  const reserveType = document.getElementById("reserveType").value;
+  const joistDirection = document.getElementById("joistDirection").value;
+  const joistPitch = Number(document.getElementById("joistPitch").value || 0);
+  const reuseCuts = document.getElementById("reuseCuts").value;
+
+  if (!roomH || !roomW || !baseBoardW || !baseBoardH) {
+    alert("寸法を入力してください");
+    return;
+  }
+
+  const verticalOption = evaluateOption(roomH, roomW, baseBoardW, baseBoardH, pattern, "vertical", joistDirection, price, reserveType, reuseCuts);
+  const horizontalOption = evaluateOption(roomH, roomW, baseBoardW, baseBoardH, pattern, "horizontal", joistDirection, price, reserveType, reuseCuts);
+  const best = [verticalOption, horizontalOption].sort((a, b) => a.score - b.score)[0];
+
+  let chosen;
+  if (directionInput === "auto") {
+    chosen = best;
+  } else {
+    chosen = directionInput === "vertical" ? verticalOption : horizontalOption;
+  }
+
+  const patternText = pattern === "straight" ? "イモ張り" : "千鳥張り";
+  const reserveText = reserveType === "one" ? "+1枚" : reserveType === "percent" ? "+10%" : "なし";
+  const joistText = joistDirection === "vertical" ? "縦方向" : joistDirection === "horizontal" ? "横方向" : "考慮なし";
+
+  document.getElementById("boardCount").textContent = chosen.cutReuse.optimizedCount;
+  document.getElementById("totalCount").textContent = chosen.total;
+  document.getElementById("totalPrice").textContent = yen(chosen.cost);
+  document.getElementById("bestShort").textContent = best.directionLabel;
+
+  const areaM2 = (roomH * roomW) / 1000000;
+  const tatami = areaM2 / 1.62;
+  document.getElementById("areaM2").textContent = areaM2.toFixed(2);
+  document.getElementById("tatamiCount").textContent = tatami.toFixed(1);
+
+  const bestBadge = chosen.direction === best.direction ? "<span class='badge best'>おすすめ案を表示中</span>" : "<span class='badge warn'>おすすめは " + best.directionLabel + "</span>";
+  const joistBadge = chosen.joist.ok ? "<span class='badge best'>" + chosen.joist.text + "</span>" : "<span class='badge warn'>" + chosen.joist.text + "</span>";
+
+  document.getElementById("layoutBadges").innerHTML =
+    bestBadge + joistBadge + "<span class='badge'>" + patternText + "</span>";
+
+  document.getElementById("resultText").innerHTML =
+    "部屋寸法：" + roomH + "mm × " + roomW + "mm（約 " + areaM2.toFixed(2) + "㎡ / 約 " + tatami.toFixed(1) + "畳）<br>" +
+    "合板配置：" + chosen.directionLabel + "（表示上の1枚：" + chosen.boardH + "mm × " + chosen.boardW + "mm）<br>" +
+    "張り方：" + patternText + " / 予備：" + reserveText + " / 端材再利用：" + (reuseCuts === "on" ? "あり" : "なし") + "<br>" +
+    "根太・下地：" + joistText + " / ピッチ：" + joistPitch + "mm<br>" +
+    "配置上の部材数：" + chosen.layout.count + "枚 → 端材再利用後：" + chosen.cutReuse.optimizedCount + "枚<br>" +
+    "比較：縦方向 " + verticalOption.total + "枚・" + yen(verticalOption.cost) + "円 / 横方向 " + horizontalOption.total + "枚・" + yen(horizontalOption.cost) + "円<br>" +
+    "提案：この条件では <b>" + best.directionLabel + "</b> が低コスト寄りです。";
+
+  renderCutAnalysis(chosen.cutReuse, reuseCuts);
+
+  drawLayout(roomH, roomW, chosen.layout.boards, joistDirection, joistPitch);
+
+  lastResult = {
+    date: new Date().toLocaleString("ja-JP"),
+    roomH, roomW,
+    areaM2: areaM2.toFixed(2),
+    tatami: tatami.toFixed(1),
+    baseBoardW, baseBoardH,
+    patternText,
+    directionLabel: chosen.directionLabel,
+    count: chosen.cutReuse.optimizedCount,
+    rawCount: chosen.layout.count,
+    saved: chosen.cutReuse.saved,
+    total: chosen.total,
+    cost: chosen.cost,
+    best: best.directionLabel,
+    joistText,
+    memoTitle: document.getElementById("memoTitle").value,
+    memoText: document.getElementById("memoText").value
+  };
+
+  document.getElementById("resultCard").classList.remove("hidden");
+  document.getElementById("layoutCard").classList.remove("hidden");
+}
+
+function renderCutAnalysis(cutReuse, reuseCuts) {
+  const el = document.getElementById("cutAnalysis");
+
+  if (!cutReuse || cutReuse.cutPieces.length === 0) {
+    el.innerHTML = "カット部材はありません。";
+    return;
+  }
+
+  let html = "";
+  html += "<b>端材再利用の試算</b><br>";
+  html += "配置上は " + cutReuse.rawCount + "枚分ですが、カット部材をまとめると ";
+  html += "<b>" + cutReuse.optimizedCount + "枚</b> 目安です。";
+
+  if (reuseCuts === "on" && cutReuse.saved > 0) {
+    html += "<br><b>約 " + cutReuse.saved + "枚分 削減できる可能性があります。</b>";
+  }
+
+  if (reuseCuts === "off") {
+    html += "<br>現在は端材再利用を考慮していません。";
+  }
+
+  html += "<br><br>カット部材：";
+  cutReuse.cutPieces.slice(0, 12).forEach(p => {
+    html += "<span class='cut-pill'>" + p.h + "×" + p.w + "</span>";
+  });
+
+  if (cutReuse.cutPieces.length > 12) {
+    html += "<br>ほか " + (cutReuse.cutPieces.length - 12) + "点";
+  }
+
+  if (reuseCuts === "on" && cutReuse.bins.length > 0) {
+    html += "<br><br><b>グループ分け</b>";
+    cutReuse.bins.slice(0, 12).forEach((bin) => {
+      const pieces = bin.pieces.map(p => "No." + p.number + "（" + p.h + "×" + p.w + "）").join(" / ");
+      html += "<br><b>" + bin.group + "</b>： " + pieces;
+    });
+
+    if (cutReuse.bins.length > 12) {
+      html += "<br>ほか " + (cutReuse.bins.length - 12) + "グループ";
+    }
+  }
+
+  el.innerHTML = html;
+}
+
+function drawLayout(roomH, roomW, boards, joistDirection, joistPitch) {
+  const room = document.getElementById("room");
+  room.innerHTML = "";
+
+  const maxWidth = 380;
+  const maxHeight = 380;
+
+  const scaleW = maxWidth / roomW;
+  const scaleH = maxHeight / roomH;
+  const scale = Math.min(scaleW, scaleH);
+
+  const displayW = roomW * scale;
+  const displayH = roomH * scale;
+
+  room.style.width = displayW + "px";
+  room.style.height = displayH + "px";
+
+  boards.forEach(function(b) {
+    const div = document.createElement("div");
+    div.className = "board" + (b.cut ? " cut" : "");
+    div.style.left = (b.x * scale) + "px";
+    div.style.top = (b.y * scale) + "px";
+    div.style.width = (b.w * scale) + "px";
+    div.style.height = (b.h * scale) + "px";
+    div.innerHTML = "<span>" + b.number + "</span>" + (b.group ? "<span class='group-label'>" + b.group + "</span>" : "");
+
+    div.onclick = function(event) {
+      event.stopPropagation();
+      showBoardInfo(b);
+    };
+
+    room.appendChild(div);
+  });
+
+  if (joistDirection !== "none" && joistPitch > 0) {
+    if (joistDirection === "horizontal") {
+      for (let y = 0; y <= roomH; y += joistPitch) {
+        const j = document.createElement("div");
+        j.className = "joist";
+        j.style.left = "0px";
+        j.style.top = (y * scale) + "px";
+        j.style.width = displayW + "px";
+        j.style.height = "3px";
+        room.appendChild(j);
+      }
+    } else {
+      for (let x = 0; x <= roomW; x += joistPitch) {
+        const j = document.createElement("div");
+        j.className = "joist";
+        j.style.left = (x * scale) + "px";
+        j.style.top = "0px";
+        j.style.width = "3px";
+        j.style.height = displayH + "px";
+        room.appendChild(j);
+      }
+    }
+  }
+}
+
+function showBoardInfo(b) {
+  document.getElementById("modalTitle").textContent = "合板 " + b.number;
+  document.getElementById("modalText").innerHTML =
+    "使用サイズ：約 <b>" + Math.round(b.h) + "mm × " + Math.round(b.w) + "mm</b><br>" +
+    "元サイズ：約 " + Math.round(b.fullH) + "mm × " + Math.round(b.fullW) + "mm<br>" +
+    "位置：上から " + Math.round(b.y) + "mm / 左から " + Math.round(b.x) + "mm<br>" +
+    "段数：" + b.row + "段目<br>" +
+    (b.group ? "端材グループ：<b>" + b.group + "</b><br>" : "") +
+    (b.cut ? "<b>カットが必要な合板です。</b>" : "基本的に定尺のまま使う想定です。");
+
+  document.getElementById("modalBg").style.display = "flex";
+}
+
+function hideModal() {
+  document.getElementById("modalBg").style.display = "none";
+}
+
+function closeModal(event) {
+  if (event.target.id === "modalBg") hideModal();
+}
+
+function saveMemo() {
+  calculate();
+
+  if (!lastResult) return;
+
+  const saved = JSON.parse(localStorage.getItem("youshitsukaMemos") || "[]");
+  saved.unshift(lastResult);
+  localStorage.setItem("youshitsukaMemos", JSON.stringify(saved));
+  renderSaved();
+  alert("保存しました");
+}
+
+function renderSaved() {
+  const saved = JSON.parse(localStorage.getItem("youshitsukaMemos") || "[]");
+  const card = document.getElementById("savedCard");
+  const list = document.getElementById("savedList");
+
+  if (saved.length === 0) {
+    card.classList.add("hidden");
+    return;
+  }
+
+  card.classList.remove("hidden");
+  list.innerHTML = "";
+
+  saved.forEach(function(item, index) {
+    const div = document.createElement("div");
+    div.className = "saved-item";
+    div.innerHTML =
+      "<strong>" + (item.memoTitle || "無題メモ") + "</strong>" +
+      item.date + "<br>" +
+      "部屋：" + item.roomH + "×" + item.roomW + "mm" + (item.tatami ? "（約" + item.tatami + "畳）" : "") + " / " +
+      item.directionLabel + " / " + item.patternText + "<br>" +
+      "枚数：" + item.count + "枚、予備込み：" + item.total + "枚、費用：" + yen(item.cost) + "円<br>" +
+      (item.rawCount ? "配置上：" + item.rawCount + "枚 / 削減目安：" + item.saved + "枚<br>" : "") +
+      "おすすめ：" + item.best + "<br>" +
+      (item.memoText ? "メモ：" + item.memoText : "");
+    list.appendChild(div);
+  });
+}
+
+function clearSaved() {
+  if (confirm("保存メモを全部消しますか？")) {
+    localStorage.removeItem("youshitsukaMemos");
+    renderSaved();
+  }
+}
+
+renderSaved();
+calculate();
+</script>
+
+</body>
+</html>
